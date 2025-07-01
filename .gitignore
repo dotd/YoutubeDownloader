@@ -1,0 +1,13 @@
+venv/
+extracted_channels/
+*.json
+my_downloads/
+.DS_Store
+.env
+.venv/
+.vscode/
+.git/
+**egg-info**/
+**dist**/
+**build**/
+**data**/
