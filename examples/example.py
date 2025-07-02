@@ -8,13 +8,13 @@ from YoutubeDownloader.youtube_downloader import YouTubeDownloader
 def main():
     # Example URLs (replace with your own)
     urls = [
-        "https://www.youtube.com/watch?v=dQw4w9WgXcQ",  # Rick Roll
-        "https://www.youtube.com/watch?v=9bZkp7q19f0",  # Gangnam Style
+        "https://www.youtube.com/watch?v=fSa1CVWlUl0",  # how to common rail fuel injector repair
+        "https://www.youtube.com/watch?v=6XJb0ghya0w",  # Denso common rail injectors - Assembling and disassembling
     ]
     
     # Create downloader instance
     downloader = YouTubeDownloader(
-        output_dir="my_downloads",
+        output_dir="downloads_01",
         format_preference="720p"  # Download in 720p quality
     )
     

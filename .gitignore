@@ -1,7 +1,7 @@
 venv/
 extracted_channels/
 *.json
-my_downloads/
+**downloads**/
 .DS_Store
 .env
 .venv/

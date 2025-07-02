@@ -260,12 +260,16 @@ Examples:
     downloader.download_multiple(urls, args.format_id)
 
 
-def download_urls(urls):
+def download_urls(
+        urls, 
+        output_dir="my_downloads", 
+        format_preference="720p"
+    ):
     
     # Create downloader instance
     downloader = YouTubeDownloader(
-        output_dir="my_downloads",
-        format_preference="720p"  # Download in 720p quality
+        output_dir=output_dir,
+        format_preference=format_preference  # Download in 720p quality
     )
     
     # List available formats for first video

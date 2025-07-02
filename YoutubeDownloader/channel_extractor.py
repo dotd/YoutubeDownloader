@@ -251,6 +251,8 @@ Examples:
 
 def get_channel_urls(channels):
     # Example channel URLs (replace with your own)
+    if isinstance(channels, str):
+        channels = [channels]
 
     # Create extractor instance
     extractor = YouTubeChannelExtractor(output_dir="extracted_channels")
