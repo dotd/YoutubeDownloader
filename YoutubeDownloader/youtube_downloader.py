@@ -65,9 +65,11 @@ class YouTubeDownloader:
                     if f.get('vcodec') != 'none' and f.get('acodec') != 'none':
                         height = f.get('height', 'N/A')
                         ext = f.get('ext', 'N/A')
-                        filesize = f.get('filesize', 'N/A')
-                        if filesize != 'N/A':
+                        filesize = f.get('filesize')
+                        if filesize is not None:
                             filesize = f"{filesize / (1024*1024):.1f}MB"
+                        else:
+                            filesize = 'N/A'
                         print(f"  {f['format_id']} | {height}p | {ext} | {filesize}")
         except Exception as e:
             print(f"{Fore.RED}Error getting formats: {e}{Style.RESET_ALL}")
@@ -138,6 +140,8 @@ class YouTubeDownloader:
         
         for i, url in enumerate(urls, 1):
             print(f"\n{Fore.YELLOW}[{i}/{len(urls)}] Processing: {url}{Style.RESET_ALL}")
+            self.list_formats(url)
+            print(format_id)
             results[url] = self.download_video(url, format_id)
         
         # Summary

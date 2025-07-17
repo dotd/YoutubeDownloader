@@ -249,7 +249,7 @@ Examples:
 
 
 
-def get_channel_urls(channels):
+def get_channel_urls(channels, max_videos):
     # Example channel URLs (replace with your own)
     if isinstance(channels, str):
         channels = [channels]
@@ -259,7 +259,7 @@ def get_channel_urls(channels):
 
     # Extract URLs from channels (limit to 5 videos per channel for demo)
     print("Extracting URLs from channels...")
-    results = extractor.extract_multiple_channels(channels, max_videos=500)
+    results = extractor.extract_multiple_channels(channels, max_videos=max_videos)
 
     # Print results
     print("\nExtraction Results:")
