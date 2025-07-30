@@ -23,6 +23,16 @@ FORMAT_OPTIONS = {
     "audio_mp3": "bestaudio[ext=mp3]/bestaudio",
 }
 
+EXAMPLE_FILE = """test:
+- https://www.youtube.com/watch?v=09839DpTctU
+- https://www.youtube.com/watch?v=d27gTrPPAyk
+- https://www.youtube.com/watch?v=ozv8ugNm0P0
+
+channel:
+- https://www.youtube.com/@BORGAutomotiveReman
+- https://www.youtube.com/@TERREPOWER-llc
+"""
+
 
 def get_channel_urls(channel_url, max_videos=None):
     try:
@@ -87,29 +97,51 @@ def prepare_main_folder(main_path=f"{PROJECT_ROOT_DIR}/{MAIN_FOLDER}"):
     # create main file under configs folder
     file = f"{folder}/{MAIN_YAML_FILE}"
     if not os.path.exists(file):
+        print(f"Creating example file: {file}")
+        # write the example file
         with open(file, "w") as f:
-            f.write("test:\n")
-            f.write("- https://www.youtube.com/watch?v=09839DpTctU\n")
-            f.write("- https://www.youtube.com/watch?v=d27gTrPPAyk\n")
-            f.write("- https://www.youtube.com/watch?v=ozv8ugNm0P0\n")
+            f.write(EXAMPLE_FILE)
 
 
 def get_default_yaml_file():
     return f"{PROJECT_ROOT_DIR}/{MAIN_FOLDER}/configs/{MAIN_YAML_FILE}"
 
 
-def read_yaml_into_dict(file=get_default_yaml_file()):
+def process_channel_name(channel_url):
+    if channel_url.startswith("https://www.youtube.com/@"):
+        return channel_url.split("/")[-1][1:]
+    return channel_url.split("/")[-1]
+
+
+def read_yaml_into_dict(file=get_default_yaml_file(), max_videos=None):
     with open(file, "r") as f:
         data = yaml.safe_load(f)
         if data is None:
             return {}
-        print(data)
+
+        channels, data = get_videos_and_channels_from_dict(data)
+        for channel in channels:
+            print(f"channel: {channel}")
+            videos = get_channel_urls(channel, max_videos)
+            data[process_channel_name(channel)] = videos
+        # Pretty print the data
+        print(yaml.dump(data, indent=4))
+
         return data
+
+
+def get_videos_and_channels_from_dict(data):
+    # get the videos and channels from the data
+    channels = data.get("channel", [])
+    # erase key channels from data
+    data.pop("channel", None)
+    return channels, data
 
 
 def add_topic_url(topic_url):
     # read yaml file
     yaml_dict = read_yaml_into_dict()
+
     # add url to the yaml file
     vars = topic_url.split("|")
 
@@ -171,7 +203,7 @@ def download_missing_videos():
     """
 
     # read yaml file
-    yaml_dict = read_yaml_into_dict()
+    yaml_dict = read_yaml_into_dict(max_videos=None)
 
     # for each topic, check if the video is in the folder
     for topic, urls in yaml_dict.items():
