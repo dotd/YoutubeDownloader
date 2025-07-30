@@ -5,6 +5,8 @@ import argparse
 import sys
 import yt_dlp
 from urllib.parse import urlparse, parse_qs
+from colorama import init, Fore, Style
+
 
 MAIN_FOLDER = "ZDataVideos"
 MAIN_YAML_FILE = "main.yaml"
@@ -20,6 +22,59 @@ FORMAT_OPTIONS = {
     "audio_only": "bestaudio[ext=m4a]/bestaudio",
     "audio_mp3": "bestaudio[ext=mp3]/bestaudio",
 }
+
+
+def get_channel_urls(channel_url, max_videos=None):
+    try:
+        # Configure yt-dlp options for channel extraction
+        ydl_opts = {
+            "quiet": True,
+            "extract_flat": True,  # Don't download, just extract info
+            "ignoreerrors": True,
+            "no_warnings": True,
+        }
+
+        if max_videos:
+            ydl_opts["playlistend"] = max_videos
+
+        urls = []
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # Extract channel info
+            info = ydl.extract_info(channel_url, download=False)
+
+            if not info:
+                print(
+                    f"{Fore.RED}Error: Could not extract channel information{Style.RESET_ALL}"
+                )
+                return None
+
+            # Get channel title
+            channel_title = info.get("title", "Unknown Channel")
+            print(f"{Fore.GREEN}Channel: {channel_title}{Style.RESET_ALL}")
+
+            # Extract video URLs from entries
+            entries = info.get("entries", [])
+            if not entries:
+                print(f"{Fore.YELLOW}No videos found in channel{Style.RESET_ALL}")
+                return []
+
+            print(f"{Fore.CYAN}Found {len(entries)} videos{Style.RESET_ALL}")
+
+            for i, entry in enumerate(entries, 1):
+                if entry and "url" in entry:
+                    video_url = entry["url"]
+                    video_title = entry.get("title", "Unknown Title")
+                    urls.append(video_url)
+                    print(f"{Fore.GREEN}[{i}] {video_title}{Style.RESET_ALL}")
+                    print(f"    URL: {video_url}")
+
+                    if max_videos and i >= max_videos:
+                        break
+        return urls
+
+    except Exception as e:
+        print(f"{Fore.RED}✗ Error extracting channel URLs: {e}{Style.RESET_ALL}")
+        return []
 
 
 def prepare_main_folder(main_path=f"{PROJECT_ROOT_DIR}/{MAIN_FOLDER}"):
@@ -88,7 +143,7 @@ def download_video(video_url, save_path, format):
         # Options for yt-dlp
         ydl_opts = {
             "format": format,  # Download best video and audio and merge
-            "outtmpl": f"{save_path}/%(title)s_{random_string}.%(ext)s",  # Save file format
+            "outtmpl": f"{save_path}/%(title)s_%(height)s_{random_string}.%(ext)s",  # Save file format
             "merge_output_format": "mp4",  # Merge video and audio into MP4 format
         }
 
@@ -110,7 +165,7 @@ def get_url_random_string(url):
     return parse_qs(urlparse(url).query).get("v", [""])[0]
 
 
-def download_missing_videos(verbose=False):
+def download_missing_videos():
     """
     The file format of a video is FreeString_RandomString.Format
     """
@@ -179,7 +234,7 @@ def main(verbose=True):
     # 1. prepare_main_folder: create the main folder and the configs folder
     # 2. update_missing_videos: download the videos that are not in the folder
     prepare_main_folder()
-    download_missing_videos(verbose=verbose)
+    download_missing_videos()
 
 
 if __name__ == "__main__":
